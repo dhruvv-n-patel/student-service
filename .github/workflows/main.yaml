@@ -1,0 +1,36 @@
+name: Docker Build and Push
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch name'
+        required: true
+        default: 'main'  # Default branch name
+      tag:
+        description: 'Enter the tag for the Docker image'
+        required: true
+
+jobs:
+  build-and-push:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.inputs.branch }}
+
+      
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Build Docker image
+        run: docker build -t studentservice .
+
+      - name: Tag Docker image
+        run: docker tag examplelog ${{secrets.DOCKER_USERNAME}}/studentservice:${{github.event.inputs.tag}}
+
+      - name: Push Docker image
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/studentservice:${{github.event.inputs.tag}}
